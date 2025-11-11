@@ -152,16 +152,21 @@ def load_goemotions_data(split='train', max_samples=None):
     # Get emotion names
     label_names = dataset.features['labels'].feature.names
     
-    # For multi-label, take the first (primary) emotion
+    # Keep multi-label lists as-is 
     labels = []
     for label_list in labels_raw:
-        if isinstance(label_list, list) and len(label_list) > 0:
-            labels.append(label_list[0])
+        if isinstance(label_list, list):
+            labels.append(list(label_list))
+        elif label_list is None:
+            labels.append([])
         else:
-            labels.append(label_list if not isinstance(label_list, list) else 0)
+            # sometimes labels may already be a single int
+            labels.append([label_list])
     
     print(f"Loaded {len(texts)} documents with {len(label_names)} emotion classes")
-    print(f"Label distribution: {np.bincount(labels)}")
+    # show distribution of primary labels for a quick sanity check
+    primary_stats = [lst[0] if (isinstance(lst, list) and len(lst) > 0) else 0 for lst in labels]
+    print(f"Label distribution (primary labels): {np.bincount(primary_stats, minlength=len(label_names))}")
     print()
     
     return texts, labels, label_names
@@ -174,18 +179,22 @@ def main():
     train_texts, train_labels, label_names = load_goemotions_data(
         split='train'
     )
-    
+
     val_texts, val_labels, _ = load_goemotions_data(
         split='validation',
         max_samples=1000
     )
+
+    # Derive primary labels (first label) for training/evaluation compatibility
+    train_primary = [lst[0] if (isinstance(lst, list) and len(lst) > 0) else 0 for lst in train_labels]
+    val_primary = [lst[0] if (isinstance(lst, list) and len(lst) > 0) else 0 for lst in val_labels]
     
     # Train classifier
     print("STEP 2: TRAIN MULTINOMIAL NAIVE BAYES")
     print("-" * 70)
     nb_classifier = NaiveBayesClassifier(
         documents=train_texts,
-        labels=train_labels,
+        labels=train_primary,
     )
     
     # Sanity check
@@ -199,20 +208,26 @@ def main():
     print("Making predictions on validation set...")
     val_predictions = nb_classifier.classify_batch(val_texts)
     
-    # Calculate metrics
-    accuracy = accuracy_score(val_labels, val_predictions)
-    f1_macro = f1_score(val_labels, val_predictions, average='macro', zero_division=0)
-    f1_weighted = f1_score(val_labels, val_predictions, average='weighted', zero_division=0)
-    
-    print(f"Accuracy: {accuracy:.4f}")
-    print(f"F1-Score (Macro): {f1_macro:.4f}")
-    print(f"F1-Score (Weighted): {f1_weighted:.4f}")
+    accuracy_primary = accuracy_score(val_primary, val_predictions)
+    f1_macro_primary = f1_score(val_primary, val_predictions, average='macro', zero_division=0)
+    f1_weighted_primary = f1_score(val_primary, val_predictions, average='weighted', zero_division=0)
+
+    print(f"Accuracy (primary-label compare): {accuracy_primary:.4f}")
+    print(f"F1-Score (Macro, primary): {f1_macro_primary:.4f}")
+    print(f"F1-Score (Weighted, primary): {f1_weighted_primary:.4f}")
+    print()
+
+    # Multi-label-aware metrics: prediction is correct if it matches any true label
+    correct_any = sum(1 for pred, truths in zip(val_predictions, val_labels) if pred in truths)
+    accuracy_any = correct_any / len(val_predictions) if len(val_predictions) > 0 else 0.0
+
+    print(f"Accuracy (any-label match): {accuracy_any:.4f}")
     print()
     
     # Detailed classification report
     print("Detailed Classification Report:")
     report = classification_report(
-        val_labels,
+        val_primary,
         val_predictions,
         labels=range(len(label_names)),
         target_names=label_names,
@@ -220,8 +235,6 @@ def main():
     )
     print(report)
     print()
-    
-    print("CLASSIFICATION COMPLETE")
 
 
 if __name__ == "__main__":
