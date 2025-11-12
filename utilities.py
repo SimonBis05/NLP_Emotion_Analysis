@@ -8,21 +8,11 @@ from datasets import load_dataset
 def nltk_tokenizer(text):
     # Preprocess: removes [NAME] tokens 
     text = re.sub(r'\[NAME\]', '', text)  
-    return word_tokenize(text)
+    tokens = word_tokenize(text)
+    return tokens
 
 
 def retrieve_dataset():
-
     # Load full GoEmotions dataset
-    ds = load_dataset("google-research-datasets/go_emotions")
+    return load_dataset("google-research-datasets/go_emotions")
 
-    # Example: how to access train, dev, and test datasets
-    # train_data = ds['train']
-    # val_data = ds['validation']
-    # test_data = ds['test']
-
-    # Example: how to access texts and labels from set
-    # train_texts = train_data['text']
-    # train_labels = train_data['labels']
-
-    return ds
