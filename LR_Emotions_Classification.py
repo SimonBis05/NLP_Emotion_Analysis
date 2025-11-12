@@ -6,7 +6,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import precision_recall_fscore_support, accuracy_score
+from sklearn.metrics import precision_recall_fscore_support, accuracy_score, classification_report
 
 
 class LogisticRegressionClassifier:
@@ -24,6 +24,9 @@ class LogisticRegressionClassifier:
         train_texts, train_labels = train_set['text'], train_set['labels']
         self.dev_texts, self.dev_labels= dev_set['text'], dev_set['labels']
         self.test_texts, self.test_labels = test_set['text'], test_set['labels']
+
+        # Get emotion names
+        self.label_names = train_set.features['labels'].feature.names
 
         # Initialize tokenizer and vectorizer as attributes
         # 28 emotions including neutral
@@ -56,7 +59,7 @@ class LogisticRegressionClassifier:
 
 # A helper function to print out macro averaged P, R, F, accuracy, and relaxed accuracy calculations
 # Uses implementations of evaluation metrics from sklearn
-def print_results(gold_labels, predicted_labels: numpy.ndarray):
+def print_results(gold_labels, predicted_labels: numpy.ndarray, label_names):
     p,r,f,_ = precision_recall_fscore_support(gold_labels, 
                                             predicted_labels,
                                             average='macro',
@@ -78,6 +81,18 @@ def print_results(gold_labels, predicted_labels: numpy.ndarray):
     print("Accuracy (relaxed, at-least one match):", relaxed_accuracy)
     print()
 
+    # Detailed classification report
+    print("Detailed Classification Report:")
+    report = classification_report(
+        gold_labels,
+        predicted_labels,
+        labels=range(len(label_names)),
+        target_names=label_names,
+        zero_division=0,
+    )
+    print(report)
+    print()
+
 
 def main():
     # Load the GoMotions datasets.
@@ -95,11 +110,11 @@ def main():
 
     # Print results
     print("Dev results:")
-    print_results(lr_classifier_obj.binary_labels_dev, lr_dev_predictions)
+    print_results(lr_classifier_obj.binary_labels_dev, lr_dev_predictions, lr_classifier_obj.label_names)
 
     print()
     print("Test results:")
-    print_results(lr_classifier_obj.binary_labels_test, lr_test_predictions)
+    print_results(lr_classifier_obj.binary_labels_test, lr_test_predictions, lr_classifier_obj.label_names)
 
 
 
