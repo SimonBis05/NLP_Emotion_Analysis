@@ -1,9 +1,9 @@
-import joblib
 import utilities
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.multiclass import OneVsRestClassifier
+
 
 class LogisticRegressionClassifier:
     def __init__(self, ds):
@@ -11,7 +11,6 @@ class LogisticRegressionClassifier:
         Initialize parameters.
         """
         self.ds = ds
-        self.label_names = None
         self.count_vectorizer = None
         self.mlb = None
         self.mlb_classifier = None
@@ -38,9 +37,6 @@ class LogisticRegressionClassifier:
             self.dev_texts, self.dev_labels= dev_set['text'], dev_set['labels']
             self.test_texts, self.test_labels = test_set['text'], test_set['labels']
 
-            # Get emotion names
-            self.label_names = train_set.features['labels'].feature.names
-
         except Exception as e:
             print(f"Error during loading data: {e}")
             raise
@@ -54,7 +50,7 @@ class LogisticRegressionClassifier:
             # 28 emotions including neutral
             print("Initializing CountVectorizer with custom tokenizer...")
             self.count_vectorizer = CountVectorizer(analyzer=utilities.nltk_tokenizer)
-            self.mlb = MultiLabelBinarizer(classes=range(28))
+            self.mlb = MultiLabelBinarizer(classes=range(utilities.num_labels))
 
             print("Starting feature extraction...")
             self.train_counts = self.count_vectorizer.fit_transform(self.train_texts)
@@ -79,10 +75,12 @@ class LogisticRegressionClassifier:
             # Initialize base classifier using saga solver
             # saga should work well with large, sparse data and multi-label problems.
             # Wrap with OneVsRestClassifier using the strategy One-vs-the-rest (OvR) multiclass.
+            # OneVsRestClassifier is a method for handling multiclass classification problems by training a separate binary classifier for each class,
+            # where each classifier is trained to distinguish one class from all the others.
             base_lr = LogisticRegression(max_iter=1000, solver='saga', random_state=0)
             self.mlb_classifier = OneVsRestClassifier(base_lr)
         except Exception as e:
-            priunt(f"Error initializing classifier: {e}")
+            print(f"Error initializing classifier: {e}")
             raise
 
 
@@ -100,29 +98,3 @@ class LogisticRegressionClassifier:
         except Exception as e:
             print(f"Error during training: {e}")
             raise
-
-def main():
-    # Load the GoMotions datasets.
-    ds = utilities.retrieve_dataset()
-
-    # Initialize classifier and train it
-    lr_classifier_obj = LogisticRegressionClassifier(ds)
-    lr_classifier_obj.train()
-
-    # Predict the class for each dev document. 
-    lr_dev_predictions = lr_classifier_obj.mlb_classifier.predict(lr_classifier_obj.dev_counts)
-
-    # Predict the class for each test document. 
-    lr_test_predictions = lr_classifier_obj.mlb_classifier.predict(lr_classifier_obj.test_counts)
-
-    # Print results
-    print("Dev results:")
-    utilities.print_results(lr_classifier_obj.binary_labels_dev, lr_dev_predictions, lr_classifier_obj.label_names)
-
-    print()
-    print("Test results:")
-    utilities.print_results(lr_classifier_obj.binary_labels_test, lr_test_predictions, lr_classifier_obj.label_names)
-
-
-if __name__ == "__main__":
-    main()
