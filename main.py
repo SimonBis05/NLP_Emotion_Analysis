@@ -79,7 +79,7 @@ def bert_model_tuned(ds):
     tunedBert = tuned.BertTunedGoMotion(ds)
 
     #Load final model for evaluation
-    tunedBert.load()
+    tunedBert.train_and_tune()
 
     # Evaluate on test set
     test_results = tunedBert.trainer.evaluate(tunedBert.processed_ds["test"])

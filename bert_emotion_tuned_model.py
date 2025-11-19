@@ -12,11 +12,11 @@ class BertTunedGoMotion:
         global original_model_name, trained_model_path
         
         # Load the model tokenizer
-        self.tokenizer = AutoTokenizer.from_pretrained(trained_model_path)
+        self.tokenizer = AutoTokenizer.from_pretrained(original_model_name)
 
         # Load our tuned DistilRoBERTa model.
         self.model = AutoModelForSequenceClassification.from_pretrained(
-            trained_model_path,
+            original_model_name,
             num_labels=utilities.num_labels,
             problem_type="multi_label_classification"
         )
