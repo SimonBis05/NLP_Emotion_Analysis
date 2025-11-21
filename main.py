@@ -1,6 +1,6 @@
 
 import utilities
-import lr_emotions_classification as lr
+import LR_Emotions_Classification as lr
 import simple_nb_classifier as nb
 import bert_base_go_emotion as base
 import bert_emotion_tuned_model as tuned
@@ -10,8 +10,6 @@ def baseline_nb(ds):
     # Load data 
     nb_classifier_obj = nb.NaiveBayesClassifier(ds)
     # Sanity check
-    print("SANITY CHECKS:")
-    print("-" * 70)
     nb_classifier_obj.sanity_check()
 
     # Predict the class for each dev document. 
@@ -94,17 +92,26 @@ def main():
     ds = utilities.retrieve_dataset()
     reduced_ds = utilities.retrieve_dataset_50()
 
+    print("")
     print("Baseline Naive Base:")
+    print("-" * 60)
     baseline_nb(ds)
+    print("")
 
     print("Baseline Logistic Regression:")
+    print("-" * 60)
     baseline_lr(ds)
+    print("")
 
     print("Competitor State-of-the-art Bert model for GoMotions:")
+    print("-" * 60)
     bert_model_pretrained(ds)
+    print("")
 
     print("Our own trained tuned Bert model 50:")
+    print("-" * 60)
     bert_model_tuned(reduced_ds)
+    # bert_model_tuned(ds)
 
 
 

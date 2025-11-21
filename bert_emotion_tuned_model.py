@@ -1,3 +1,4 @@
+import torch
 import utilities
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trainer, TrainingArguments
 
@@ -10,6 +11,10 @@ trained_model_path = "./best_tuned_model"
 class BertTunedGoMotion:
     def __init__(self, ds):
         global original_model_name, trained_model_path
+
+        # Detect device
+        if torch.cuda.is_available():
+            print(f"GPU Name: {torch.cuda.get_device_name(0)}")
         
         # Load the model tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(original_model_name)
@@ -34,7 +39,8 @@ class BertTunedGoMotion:
             # Set minimal training arg for evaluation
             training_args = TrainingArguments(
                 output_dir="./trainer_output",
-                per_device_eval_batch_size=16
+                per_device_eval_batch_size=16,
+                fp16=torch.cuda.is_available(),  # FP16 only if GPU exists
             )
 
             # Create Trainer for evaluation
