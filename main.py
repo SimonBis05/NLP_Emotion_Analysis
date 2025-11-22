@@ -1,7 +1,7 @@
 
 import utilities
 import LR_Emotions_Classification as lr
-import simple_nb_classifier as nb
+import NB_Emothion_Classification as nb
 import bert_base_go_emotion as base
 import bert_emotion_tuned_model as tuned
 
@@ -114,11 +114,5 @@ def main():
     # bert_model_tuned(ds)
 
 
-
-
 if __name__ == "__main__":
     main()
-
-
-
-

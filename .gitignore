@@ -42,3 +42,4 @@ distilroberta-goemotions-tuned/checkpoint-13570/scaler.pt
 distilroberta-goemotions-tuned/checkpoint-13570/scheduler.pt
 distilroberta-goemotions-tuned/checkpoint-13570/trainer_state.json
 distilroberta-goemotions-tuned/checkpoint-13570/training_args.bin
+__pycache__/NB_Emothion_Classification.cpython-311.pyc
