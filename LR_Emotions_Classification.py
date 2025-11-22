@@ -98,3 +98,4 @@ class LogisticRegressionClassifier:
         except Exception as e:
             print(f"Error during training: {e}")
             raise
+        
