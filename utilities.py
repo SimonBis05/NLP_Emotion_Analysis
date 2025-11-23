@@ -95,7 +95,7 @@ def print_results_nb(gold_labels, gold_labels_primary, predicted_labels):
     correct_any = sum(1 for pred, truths in zip(predicted_labels, gold_labels) if pred in truths)
     relaxed_accuracy = correct_any / len(predicted_labels) if len(predicted_labels) > 0 else 0.0
     
-    return print_results(gold_labels_primary, predicted_labels)
+    return print_results(gold_labels_primary, predicted_labels, relaxed_accuracy)
 
 
 
@@ -117,7 +117,7 @@ def print_results_lr(gold_labels, predicted_labels):
 
 
 # Uses implementations of evaluation metrics from sklearn
-def print_results(gold_labels, predicted_labels, relaxed_accuracy=None, subset_accuracy=None):
+def print_results(gold_labels, predicted_labels, relaxed_accuracy=0, subset_accuracy=0):
 
     # Calculate metrics
     f1_micro = f1_score(gold_labels, predicted_labels, average='micro')
@@ -127,8 +127,7 @@ def print_results(gold_labels, predicted_labels, relaxed_accuracy=None, subset_a
     print("F1 Macro: ", f1_macro)
     print("F1 Micro: ", f1_micro)
     print("F1 Weighted: ", f1_weighted)
-    if relaxed_accuracy != None:
-        print("Accuracy (relaxed, at-least one match):", relaxed_accuracy)
+    print("Accuracy (relaxed, at-least one match):", relaxed_accuracy)
     if subset_accuracy != None:
         print("Subset Accuracy (exact match):", subset_accuracy)
 
@@ -164,11 +163,19 @@ def compute_metrics(eval_pred):
     # Subset accuracy (exact match)
     subset_accuracy = accuracy_score(gold_labels, predicted_labels)
     
+    # Relaxed true positives method, check when predicted and gold labels match with at least one emotion.
+    relaxed_tp_mask = numpy.any(numpy.logical_and(gold_labels, predicted_labels), axis=1)
+    # Count how many were at least one true positive.
+    relaxed_true_positives = numpy.sum(relaxed_tp_mask)
+    # Accuracy calculation
+    relaxed_accuracy = relaxed_true_positives / gold_labels.shape[0]
+    
     return {
         'f1_macro': f1_micro,
         'f1_macro': f1_macro, # Optimal value for comparison
         'f1_weighted': f1_weighted,
-        'Subset Accuracy (exact match)': subset_accuracy
+        'Subset Accuracy (exact match)': subset_accuracy,
+        'Accuracy (relaxed, at-least one match)': relaxed_accuracy
     }
 
 

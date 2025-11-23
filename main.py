@@ -19,8 +19,8 @@ def baseline_nb(ds):
     nb_test_predictions = nb_classifier_obj.classify_batch(nb_classifier_obj.test_texts)
 
     # Print results
-    print("Dev results:")
-    utilities.print_results_nb(nb_classifier_obj.dev_labels, nb_classifier_obj.dev_primary_labels, nb_dev_predictions)
+    # print("Dev results:")
+    # utilities.print_results_nb(nb_classifier_obj.dev_labels, nb_classifier_obj.dev_primary_labels, nb_dev_predictions)
 
 
     print()
@@ -45,8 +45,8 @@ def baseline_lr(ds):
     lr_test_predictions = lr_classifier_obj.mlb_classifier.predict(lr_classifier_obj.test_counts)
 
     # Print results
-    print("Dev results:")
-    utilities.print_results_lr(lr_classifier_obj.binary_labels_dev, lr_dev_predictions)
+    # print("Dev results:")
+    # utilities.print_results_lr(lr_classifier_obj.binary_labels_dev, lr_dev_predictions)
 
     print()
     print("Test results:")
@@ -111,7 +111,6 @@ def main():
     print("Our own trained tuned Bert model 50:")
     print("-" * 60)
     bert_model_tuned(reduced_ds)
-    # bert_model_tuned(ds)
 
 
 if __name__ == "__main__":
