@@ -21,7 +21,11 @@ python -m venv venv
 ```bash
 venv\Scripts\activate
 ```
-## 3. Run Main function
+## 3. Intsall virtual env requirements
+```bash
+pip intsall -r requirements.txt
+```
+## 4. Run Main function
 ```python
 python ./main.py
 ```
