@@ -5,17 +5,12 @@ original_model_name = "bhadresh-savani/bert-base-go-emotion"
 
 class BertBaseGoMotion:
     def __init__(self, ds):
-        global original_model_name
 
         # Load the model tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(original_model_name)
 
         # Load bhadresh-savani/bert-base-go-emotion model.
-        self.model = AutoModelForSequenceClassification.from_pretrained(
-            original_model_name,
-            num_labels=utilities.num_labels,
-            problem_type="multi_label_classification"
-        )
+        self.model = AutoModelForSequenceClassification.from_pretrained(original_model_name)
 
         # Set to evaluation mode
         self.model.eval() 
