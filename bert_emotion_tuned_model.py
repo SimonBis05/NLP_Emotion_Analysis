@@ -4,8 +4,9 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trai
 
 # Base model - DistilRoBERTa
 original_model_name = "distilbert/distilroberta-base"
+
 # Our fine tuned DistilRoBERTa model
-trained_model_path = "./best_tuned_model"
+trained_model_path = "./distilroberta-goemotions-tuned/chekpoint-####"
 
 
 class BertTunedGoMotion:
@@ -35,6 +36,7 @@ class BertTunedGoMotion:
 
 
     def load(self):
+        """ Function in order to load previous trained checkpoint of the model """
         try:
             # Set minimal training arg for evaluation
             training_args = TrainingArguments(
@@ -73,7 +75,7 @@ class BertTunedGoMotion:
                 load_best_model_at_end=True,  # Load the best performing checkpoint at the end of training
                 metric_for_best_model="f1_macro", # Use macro-averaged F1 score to determine the best model
                 greater_is_better=True, # Higher F1 score indicates better model performance
-                save_total_limit=2, # Keep only the 2 most recent checkpoints to save space
+                save_total_limit=1, # Keep only the most recent checkpoint to save space
                 fp16=True, # Enable mixed precision training (16-bit floating point) for faster training and reduced memory usage
                 logging_steps=100, # Log training metrics every 100 steps
             )
