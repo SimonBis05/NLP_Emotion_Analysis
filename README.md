@@ -18,11 +18,11 @@ Our implementation includes:
 python -m venv venv
 ```
 ## 2. Activate it
-# For Windows:
+#### For Windows:
 ```bash
 venv\Scripts\activate
 ```
-# For Mac/Linux:
+#### For Mac/Linux:
 ```bash
 venv\bin\activate
 ```
