@@ -162,7 +162,7 @@ def compute_metrics(eval_pred):
     sigmoid = torch.nn.Sigmoid()
     probs = sigmoid(torch.Tensor(predictions))
     
-    # Convert probabilities to binary predictions (threshold at 0.5)
+    # Convert probabilities to binary predictions (threshold at 30%)
     predicted_labels = (probs.numpy() > 0.3).astype(int)
     gold_labels = labels.astype(int)
     

@@ -18,7 +18,7 @@ def baseline_nb(ds):
     # Predict the class for each test document. 
     nb_test_predictions = nb_classifier_obj.classify_batch(nb_classifier_obj.test_texts)
 
-    # Print results
+    # Print Dev results
     # print("Dev results:")
     # utilities.print_results_nb(nb_classifier_obj.dev_labels, nb_classifier_obj.dev_primary_labels, nb_dev_predictions)
 
@@ -27,6 +27,8 @@ def baseline_nb(ds):
     print("Test results:")
 
     report = utilities.print_results_nb(nb_classifier_obj.test_labels, nb_classifier_obj.test_primary_labels, nb_test_predictions)
+
+    # For more information you can print report variable.
     # print("Detailed Classification Report:")
     # print(report)
     # print()
@@ -44,7 +46,7 @@ def baseline_lr(ds):
     # Predict the class for each test document. 
     lr_test_predictions = lr_classifier_obj.mlb_classifier.predict(lr_classifier_obj.test_counts)
 
-    # Print results
+    # Print Dev results
     # print("Dev results:")
     # utilities.print_results_lr(lr_classifier_obj.binary_labels_dev, lr_dev_predictions)
 
@@ -52,6 +54,8 @@ def baseline_lr(ds):
     print("Test results:")
     
     report = utilities.print_results_lr(lr_classifier_obj.binary_labels_test, lr_test_predictions)
+
+    # For more information you can print report variable.
     # print("Detailed Classification Report:")
     # print(report)
     # print()
@@ -68,7 +72,7 @@ def bert_model_pretrained(ds):
     print(test_results)
 
     # Evaluate on manual texts
-    batch_predictions = utilities.predict_batch(origBertModel.tokenizer, origBertModel.model)
+    # batch_predictions = utilities.predict_batch(origBertModel.tokenizer, origBertModel.model)
 
 
 def bert_model_tuned(ds):
@@ -84,7 +88,7 @@ def bert_model_tuned(ds):
     print(test_results)
 
     # Evaluate on manual texts
-    batch_predictions = utilities.predict_batch(tunedBert.tokenizer, tunedBert.model)
+    # batch_predictions = utilities.predict_batch(tunedBert.tokenizer, tunedBert.model)
 
 
 def main():
@@ -103,12 +107,12 @@ def main():
     baseline_lr(ds)
     print("")
 
-    print("Competitor State-of-the-art Bert model for GoMotions:")
+    print("Benchmark State-of-the-art Bert model for GoMotions:")
     print("-" * 60)
     bert_model_pretrained(ds)
     print("")
 
-    print("Our own trained tuned Bert model 50:")
+    print("Our own trained fine tuned Bert model (50% train dataset) :")
     print("-" * 60)
     bert_model_tuned(reduced_ds)
 
