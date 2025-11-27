@@ -28,7 +28,10 @@ class NaiveBayesClassifier:
         self.word_counts = {c: defaultdict(int) for c in self.classes}
         self.total_words = {c: 0 for c in self.classes}
         self.vocab = set()
-                
+        
+        # Track global frequency of all words across classes
+        self.global_counts = defaultdict(int)
+
         for idx, (doc, label) in enumerate(zip(self.train_texts, self.train_primary_labels)):
             if (idx + 1) % 10000 == 0:
                 print(f"  Processed {idx + 1} documents...")
@@ -44,32 +47,46 @@ class NaiveBayesClassifier:
                 self.vocab.add(token)
                 self.word_counts[label][token] += 1
                 self.total_words[label] += 1
+                self.global_counts[token] += 1
                 
         self.vocab = sorted(list(self.vocab))
+
+        MIN_FREQ = 3  # keep words appearing at least 3 times total
+
+        filtered_vocab = [w for w in self.vocab if self.global_counts[w] >= MIN_FREQ]
         
-        # Calculate basic statistics
-        self.num_docs = len(self.train_texts)
-        self.num_classes = len(self.classes)
+        self.vocab = filtered_vocab
         self.vocab_size = len(self.vocab)
         
-        # Calculate class priors: P(class) = count(class) / total_documents
+        # Compute class priors: log P(class)
+        for c in self.classes:
+            for w in list(self.word_counts[c].keys()):
+                if w not in self.vocab:
+                    # decrease total words count
+                    self.total_words[c] -= self.word_counts[c][w]
+                    del self.word_counts[c][w]
+
+        self.num_docs = len(self.train_texts)
+        self.num_classes = len(self.classes)
+
+        # Compute class priors: log P(class)
         self.class_priors = {}
         for c in self.classes:
             prob = self.class_counts[c] / self.num_docs
             self.class_priors[c] = math.log(prob)
-        
-        # Calculate word likelihoods with Laplace smoothing
+
+        # Compute smoothed likelihoods
         self.likelihoods = {c: {} for c in self.classes}
-        
+
         for c in self.classes:
             for w in self.vocab:
                 # Count of word w in class c
                 count = self.word_counts[c].get(w, 0)
-                
-                # Laplace smoothing: (count + 1) / (total_words + vocab_size)
+
+                # Laplace smoothing
                 likelihood = (count + 1) / (self.total_words[c] + self.vocab_size)
-                
-                # Store as log probability
+
+                # Store log probability
                 self.likelihoods[c][w] = math.log(likelihood)
 
     def _load_data(self):

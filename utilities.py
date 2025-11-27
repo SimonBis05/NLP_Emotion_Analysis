@@ -7,7 +7,10 @@ from datasets import Sequence, Features, Value, DatasetDict
 from nltk.tokenize import word_tokenize
 from datasets import load_dataset
 from sklearn.metrics import accuracy_score, classification_report, f1_score
+from nltk.corpus import stopwords
+nltk.download('stopwords')
 
+STOPWORDS = set(stopwords.words("english"))
 
 # Emotion labels
 emotions = [
@@ -63,7 +66,15 @@ def nltk_tokenizer(text):
     """ Standard tokenizer for LR and NB models. """
     # Preprocess: removes [NAME] tokens 
     text = re.sub(r'\[NAME\]', '', text)
-    tokens = word_tokenize(text)
+    # Lowercase
+    text = text.lower()
+
+    # Extract words only
+    tokens = re.findall(r"[a-z']+", text)
+
+    # Remove stopwords + very short tokens
+    tokens = [t for t in tokens if t not in STOPWORDS and len(t) > 2]
+
     return tokens
 
 
